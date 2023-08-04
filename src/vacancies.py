@@ -1,4 +1,5 @@
 import requests
+import datetime
 
 
 class ResponseError(Exception):
@@ -36,5 +37,18 @@ class HeadHunterAPI:
                                     headers=self.header, params=self.params)
             if response.status_code != 200:
                 raise ResponseError
-            vacancies.append(response.json()['items'])
+            else:
+                for vac in response.json()['items']:
+
+                    raw_date = vac['published_at']
+                    date = datetime.datetime.fromisoformat(raw_date).strftime('%d.%m.%Y %H:%m')
+
+                    vacancies.append({'employer_id': vac['employer']['id'],
+                                      'employer_name': vac['employer']['name'],
+                                      'vacancy_id': vac['id'],
+                                      'vacancy_name': vac['name'],
+                                      'salary_from': vac['salary']['from'] if vac['salary'] else 0,
+                                      'published_date': date,
+                                      'requirement': vac['snippet']['requirement'],
+                                      'url': vac['alternate_url']})
         return vacancies
