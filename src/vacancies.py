@@ -31,24 +31,34 @@ class HeadHunterAPI:
 
     def get_response(self):
         """Получение списка вакансий от данных работодателей"""
-        vacancies = []
+        data = []
         for employer in self.employers:
             response = requests.get(f"https://api.hh.ru/vacancies?employer_id={employer}",
                                     headers=self.header, params=self.params)
             if response.status_code != 200:
                 raise ResponseError
-            else:
-                for vac in response.json()['items']:
+            data.append(response.json()['items'])
+        full_data = [x for l in data for x in l]
+        return full_data
 
-                    raw_date = vac['published_at']
-                    date = datetime.datetime.fromisoformat(raw_date).strftime('%d.%m.%Y %H:%m')
+    def get_employers(self):
+        employers = []
+        for emp in self.get_response():
+            employers.append({'employer_id': emp['employer']['id'],
+                              'employer_name': emp['employer']['name']})
+        emp_dict = {i['employer_id']: i for i in employers}
+        return list(emp_dict.values())
 
-                    vacancies.append({'employer_id': vac['employer']['id'],
-                                      'employer_name': vac['employer']['name'],
-                                      'vacancy_id': vac['id'],
-                                      'vacancy_name': vac['name'],
-                                      'salary_from': vac['salary']['from'] if vac['salary'] else 0,
-                                      'published_date': date,
-                                      'requirement': vac['snippet']['requirement'],
-                                      'url': vac['alternate_url']})
+    def get_vacancies(self):
+        vacancies = []
+        for vac in self.get_response():
+            raw_date = vac['published_at']
+            date = datetime.datetime.fromisoformat(raw_date).strftime('%d.%m.%Y %H:%m')
+
+            vacancies.append({'vacancy_id': vac['id'],
+                              'vacancy_name': vac['name'],
+                              'salary_from': vac['salary']['from'] if vac['salary'] else 0,
+                              'published_date': date,
+                              'requirement': vac['snippet']['requirement'],
+                              'url': vac['alternate_url']})
         return vacancies
