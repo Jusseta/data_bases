@@ -17,7 +17,11 @@ class HeadHunterAPI:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
                           '(KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
         }
-        self.params = {'pages': 100, 'per_page': 50, 'only_with_vacancies': True}
+        self.params = {
+                      'pages': 10,
+                      'per_page': 100,
+                      'only_with_salary': True
+                      }
         self.employers = [2999230,  # P&G
                           39305,  # Gazprom
                           3529,  # Sber
@@ -55,10 +59,13 @@ class HeadHunterAPI:
             raw_date = vac['published_at']
             date = datetime.datetime.fromisoformat(raw_date).strftime('%d.%m.%Y %H:%m')
 
+            if vac['salary']['from'] and vac['salary']['from'] is not None:
+                salary = vac['salary']['from']
+
             vacancies.append({'vacancy_id': vac['id'],
                               'vacancy_name': vac['name'],
-                              'salary_from': vac['salary']['from'] if vac['salary'] else 0,
+                              'employer': vac['employer']['name'],
+                              'salary_from': salary,
                               'published_date': date,
-                              'requirement': vac['snippet']['requirement'],
                               'url': vac['alternate_url']})
         return vacancies
