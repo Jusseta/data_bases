@@ -62,7 +62,8 @@ class DBManager:
                 print(f"Компания: {employer}, вакансия: {vacancy}, зарплата: {salary}, ссылка: {url}")
 
     def get_vacancies_with_keyword(self, keyword: str):
-        """Получает список всех вакансий, в названии которых содержатся переданные в метод слова"""
+        """Получает список всех вакансий, в названии которых содержатся переданные в метод слова,
+        keyword - искомое слово в названии вакансии"""
         with self.conn.cursor() as cur:
             cur.execute(f"""
                         SELECT employer, vacancy_name, salary_from, url 
@@ -72,7 +73,7 @@ class DBManager:
                         )
             vacs = cur.fetchall()
 
-            for vacancy, employer, salary, url in vacs:
+            for employer, vacancy, salary, url in vacs:
                 print(f"Компания: {employer}, вакансия: {vacancy}, зарплата: {salary}, ссылка: {url}")
 
         cur.close()
