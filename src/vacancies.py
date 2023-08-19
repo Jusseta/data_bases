@@ -57,7 +57,7 @@ class HeadHunterAPI:
         vacancies = []
         for vac in self.get_response():
             raw_date = vac['published_at']
-            date = datetime.datetime.fromisoformat(raw_date).strftime('%d.%m.%Y %H:%m')
+            date = datetime.datetime.fromisoformat(raw_date).strftime('%Y-%m-%d')
 
             if vac['salary']['from'] and vac['salary']['from'] is not None:
                 salary = vac['salary']['from']
